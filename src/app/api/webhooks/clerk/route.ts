@@ -1,4 +1,5 @@
 import { env } from '@/data/env/server'
+import { revalidateUserCache } from '@/features/users/db/cache'
 import { deleteUserData, insertuserData, updateUserData } from '@/features/users/db/users'
 import { syncClerkUserMetadata } from '@/services/clerk'
 import { WebhookEvent } from '@clerk/nextjs/webhooks'
@@ -61,18 +62,21 @@ export async function POST(req: Request) {
                         role: 'user'
                     })
                     await syncClerkUserMetadata(user);
+                    revalidateUserCache(user.id);
                 } else {
-                    await updateUserData(clerkUserId, {
+                    const updatedUser = await updateUserData(clerkUserId, {
                         email,
                         name,
                         imageUrl,
                         role: event.data?.public_metadata?.role
                     })
+                    revalidateUserCache(updatedUser.id);
                 }
                 break;
             case 'user.deleted':
                 if (event.data.id != null) {
-                    await deleteUserData(event.data.id)
+                    const deletedUser = await deleteUserData(event.data.id);
+                    revalidateUserCache(deletedUser.id);
                 }
                 break;
 

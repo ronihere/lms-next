@@ -1,14 +1,15 @@
-import Link from "next/link"
-import { UserButton, SignedIn, SignedOut, SignInButton, SignOutButton } from "@clerk/nextjs"
-import { Button } from "@/components/ui/button"
-import { getUserDetails } from "@/services/clerk"
-import { canAccessAdmin } from "@/lib/utils"
-import { Suspense } from "react"
-export default function layout({ children }: Readonly<{ children: React.ReactNode }>) {
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { SignedIn, SignedOut, SignInButton, SignOutButton, UserButton } from "@clerk/nextjs";
+import Link from "next/link";
+
+export default function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
         <>
             <Navbar />
-            {children}
+            <div className="p-4">
+                {children}
+            </div>
         </>
     )
 }
@@ -16,18 +17,19 @@ export default function layout({ children }: Readonly<{ children: React.ReactNod
 function Navbar() {
     return (
         <header className="flex flex-row items-center justify-between w-full h-16 shadow-md p-4">
-            <div className="flex flex-row items-center">
+            <div className="flex flex-row items-center gap-4 justify-center">
                 <div className="text-xl font-bold">LMS</div>
+                <Badge className="">Admin</Badge>
             </div>
             <nav className="flex flex-row items-center">
                 <Link className="text-sm font-medium hover:underline" href={'/'}>Home</Link>
                 <SignedIn>
-                    <AdminLink />
-
-                    <Link className="text-sm font-medium ml-4 hover:underline" href={'/courses'}>My Courses</Link>
-
                 </SignedIn>
-                <Link className="text-sm font-medium ml-4 hover:underline" href={'/purchases'}>Purchase History</Link>
+
+                <Link className="text-sm font-medium ml-4 hover:underline" href={'/admin/courses'}>Courses</Link>
+
+                <Link className="text-sm font-medium ml-4 hover:underline" href={'admin/products'}>Products</Link>
+                <Link className="text-sm font-medium ml-4 hover:underline" href={'admin/sales'}>Sales</Link>
 
 
                 <SignedOut>
@@ -47,21 +49,7 @@ function Navbar() {
                         }
                     }} />
                 </div>
-
             </nav>
         </header>
     )
-}
-
-async function AdminLink() {
-    const { role } = await getUserDetails()
-    if (!canAccessAdmin(role)) {
-        return null
-    }
-    return (
-        <Suspense>
-            <Link className="text-sm font-medium ml-4 hover:underline" href={'/admin'}>Admin</Link>
-        </Suspense>
-    )
-
 }

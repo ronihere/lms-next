@@ -1,7 +1,6 @@
 import { db } from "@/drizzle/db";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { userTable } from "@/drizzle/schema";
-import { env } from "@/data/env/server";
 
 export async function insertuserData(data: typeof userTable.$inferInsert) {
     try {
